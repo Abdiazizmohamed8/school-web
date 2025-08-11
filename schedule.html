@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Albirri School - Schedule</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg, #f5f7fa);
+      color: var(--text, #333);
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    nav.sidebar {
+      width: 240px;
+      background: #2c3e50;
+      color: #ecf0f1;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1rem;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #34495e transparent;
+      position: fixed;
+      top: 0;
+      bottom: 60px;
+      left: 0;
+      z-index: 1000;
+    }
+
+    nav.sidebar::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    nav.sidebar::-webkit-scrollbar-thumb {
+      background-color: #34495e;
+      border-radius: 4px;
+    }
+
+    nav.sidebar h2 {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    nav.sidebar a {
+      display: block;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.4rem;
+      color: #ecf0f1;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: background 0.3s;
+      white-space: nowrap;
+    }
+
+    nav.sidebar a.active,
+    nav.sidebar a:hover {
+      background: #34495e;
+    }
+
+    nav.sidebar a#logoutBtn {
+      margin-top: auto;
+      background: #c0392b;
+      text-align: center;
+    }
+
+    nav.sidebar a#logoutBtn:hover {
+      background: #e74c3c;
+    }
+
+    main.content {
+      margin-left: 260px;
+      padding: 2rem;
+      padding-bottom: 80px;
+      flex-grow: 1;
+      background: #fff;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+
+    #addScheduleBtn {
+      padding: 0.6rem 1.2rem;
+      background: #2980b9;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-bottom: 1rem;
+    }
+
+    #addScheduleBtn:hover {
+      background: #1c5980;
+    }
+
+    #searchInput {
+      margin-bottom: 1rem;
+      padding: 0.5rem 0.8rem;
+      width: 100%;
+      max-width: 400px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .table-wrapper {
+      max-width: 100%;
+      overflow-x: auto;
+      margin-top: 1.5rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+      margin: auto;
+    }
+
+    thead {
+      background: #2980b9;
+      color: #fff;
+    }
+
+    th,
+    td {
+      padding: 0.75rem 1rem;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+
+    button.edit-btn,
+    button.delete-btn {
+      padding: 0.3rem 0.7rem;
+      margin-right: 0.3rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: white;
+      transition: transform 0.3s ease;
+    }
+
+    button.edit-btn {
+      background-color: #27ae60;
+    }
+
+    button.edit-btn:hover {
+      background-color: #1e8449;
+      transform: scale(1.1);
+    }
+
+    button.delete-btn {
+      background-color: #c0392b;
+    }
+
+    button.delete-btn:hover {
+      background-color: #922b21;
+      transform: scale(1.1);
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: #fff;
+      padding: 1.5rem 2rem;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal label {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+
+    .modal input,
+    .modal select {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    .modal button {
+      padding: 0.75rem 1.5rem;
+      background: #2980b9;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .modal button:hover {
+      background: #1c5980;
+      transform: scale(1.05);
+    }
+
+    .modal .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #888;
+      transition: color 0.3s;
+    }
+
+    .modal .close-btn:hover {
+      color: #000;
+    }
+
+    footer.footer {
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 0.5rem 2rem;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      z-index: 2000;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        padding-bottom: 60px;
+      }
+
+      nav.sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 1rem 0.5rem;
+      }
+
+      nav.sidebar h2 {
+        display: none;
+      }
+
+      nav.sidebar a {
+        flex: 1;
+        margin: 0 0.25rem;
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      main.content {
+        margin-left: 0;
+        margin-top: 1rem;
+      }
+
+      #searchInput {
+        max-width: 100%;
+        margin-left: 0;
+        display: block;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="sidebar" aria-label="Main navigation">
+    <h2>Albirri School</h2>
+    <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
+    <a href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
+    <a href="courses.html"><i class="fas fa-book"></i> Courses</a>
+    <a href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
+    <a href="attendance.html"><i class="fas fa-clipboard-list"></i> Attendance</a>
+    <a href="exams.html"><i class="fas fa-file-alt"></i> Exams</a>
+    <a href="results.html"><i class="fas fa-poll"></i> Results</a>
+    <a href="grades.html"><i class="fas fa-graduation-cap"></i> Grades</a>
+    <a href="parents.html"><i class="fas fa-users"></i> Parents</a>
+    <a href="schedule.html" class="active"><i class="fas fa-calendar-alt"></i> Schedule</a>
+    <a href="profile.html"><i class="fas fa-user-cog"></i> Profile</a>
+    <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+    <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+    <a href="fees.html"><i class="fas fa-dollar-sign"></i> Fees</a>
+    <a href="user-management.html"><i class="fas fa-users-cog"></i> User Management</a>
+    <a id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </nav>
+
+  <main class="content" role="main" aria-label="Schedule management">
+    <h1>Schedule</h1>
+    <input type="text" id="searchInput" placeholder="Search schedule..." aria-label="Search schedule" />
+    <button id="addScheduleBtn" aria-haspopup="dialog">Add Schedule</button>
+
+    <table aria-label="Schedule list" id="scheduleTable">
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Teacher</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Schedule rows generated here -->
+      </tbody>
+    </table>
+  </main>
+
+  <!-- Modal for Add/Edit Schedule -->
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">
+    <div class="modal" role="document">
+      <button class="close-btn" aria-label="Close form">&times;</button>
+      <h2 id="modalTitle">Add Schedule</h2>
+      <form id="modalScheduleForm" aria-label="Add or edit schedule form">
+        <input type="hidden" id="modalScheduleId" />
+        
+        <label for="modalSubject">Subject</label>
+        <select id="modalSubject" required aria-required="true">
+          <option value="" disabled selected>Select Subject</option>
+          <!-- Options loaded dynamically from courses -->
+        </select>
+
+        <label for="modalTeacher">Teacher</label>
+        <select id="modalTeacher" required aria-required="true">
+          <option value="" disabled selected>Select Teacher</option>
+          <!-- Teachers options loaded by JS -->
+        </select>
+
+        <label for="modalDate">Date</label>
+        <input type="date" id="modalDate" required aria-required="true" />
+        <label for="modalTime">Time</label>
+        <input type="time" id="modalTime" required aria-required="true" />
+        <button type="submit" class="submit-btn" id="modalSubmitBtn">Add Schedule</button>
+      </form>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <span><i class="fab fa-facebook"></i> Facebook</span>
+    <span><i class="fab fa-whatsapp"></i> WhatsApp</span>
+    <span><i class="fas fa-map-marker-alt"></i> Degmada Hilwaa, Xaafadda Al-Kheyraad</span>
+  </footer>
+
+  <script>
+    // Redirect if not logged in
+    if (!localStorage.getItem('loggedInUser')) {
+      alert('Fadlan marka hore login soo samee!');
+      window.location.href = 'login.html';
+    }
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('loggedInUser');
+      window.location.href = 'login.html';
+    });
+
+    const modalOverlay = document.getElementById('modalOverlay');
+    const addScheduleBtn = document.getElementById('addScheduleBtn');
+    const modalScheduleForm = document.getElementById('modalScheduleForm');
+    const modalScheduleId = document.getElementById('modalScheduleId');
+    const modalSubject = document.getElementById('modalSubject');
+    const modalTeacher = document.getElementById('modalTeacher');
+    const modalDate = document.getElementById('modalDate');
+    const modalTime = document.getElementById('modalTime');
+    const modalSubmitBtn = document.getElementById('modalSubmitBtn');
+    const closeModalBtn = modalOverlay.querySelector('.close-btn');
+
+    const scheduleTableBody = document.querySelector('#scheduleTable tbody');
+    const searchInput = document.getElementById('searchInput');
+
+    // Open modal function
+    function openModal(isEdit = false) {
+      modalOverlay.classList.add('active');
+      if (isEdit) {
+        modalSubmitBtn.textContent = 'Update Schedule';
+        document.getElementById('modalTitle').textContent = 'Edit Schedule';
+      } else {
+        modalSubmitBtn.textContent = 'Add Schedule';
+        document.getElementById('modalTitle').textContent = 'Add Schedule';
+        modalScheduleForm.reset();
+        modalScheduleId.value = '';
+      }
+      // Load teachers and subjects each time modal opens
+      loadTeachersOptions();
+      loadSubjectsOptions();
+      modalSubject.focus();
+    }
+
+    // Close modal function
+    function closeModal() {
+      modalOverlay.classList.remove('active');
+    }
+
+    // Load teachers from localStorage to select dropdown
+    function loadTeachersOptions() {
+      const teachers = JSON.parse(localStorage.getItem('teachers')) || [];
+      modalTeacher.innerHTML = '<option value="" disabled selected>Select Teacher</option>';
+      teachers.forEach(t => {
+        const option = document.createElement('option');
+        option.value = t.fullName; // or you can use teacherId here if preferred
+        option.textContent = t.fullName;
+        modalTeacher.appendChild(option);
+      });
+    }
+
+    // Load subjects from courses in localStorage
+    function loadSubjectsOptions() {
+      const courses = JSON.parse(localStorage.getItem('courses')) || [];
+      modalSubject.innerHTML = '<option value="" disabled selected>Select Subject</option>';
+      courses.forEach(course => {
+        const option = document.createElement('option');
+        option.value = course.courseName; // or courseCode if you prefer
+        option.textContent = course.courseName;
+        modalSubject.appendChild(option);
+      });
+    }
+
+    // Load schedules from localStorage
+    function getSchedules() {
+      return JSON.parse(localStorage.getItem('schedules')) || [];
+    }
+
+    function saveSchedules(schedules) {
+      localStorage.setItem('schedules', JSON.stringify(schedules));
+    }
+
+    // Render schedules in table
+    function renderSchedules(filteredSchedules = null) {
+      const schedules = filteredSchedules || getSchedules();
+      scheduleTableBody.innerHTML = '';
+      schedules.forEach((schedule, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${schedule.subject}</td>
+          <td>${schedule.teacher}</td>
+          <td>${schedule.date}</td>
+          <td>${schedule.time}</td>
+          <td>
+            <button class="edit-btn" aria-label="Edit schedule ${schedule.subject}" data-index="${index}">Edit</button>
+            <button class="delete-btn" aria-label="Delete schedule ${schedule.subject}" data-index="${index}">Delete</button>
+          </td>
+        `;
+        scheduleTableBody.appendChild(tr);
+      });
+    }
+
+    // Fill modal form for editing
+    function fillForm(index) {
+      const schedules = getSchedules();
+      const schedule = schedules[index];
+      modalScheduleId.value = index;
+      modalSubject.value = schedule.subject;
+      modalTeacher.value = schedule.teacher;
+      modalDate.value = schedule.date;
+      modalTime.value = schedule.time;
+      openModal(true);
+    }
+
+    // Delete schedule
+    function deleteSchedule(index) {
+      if (confirm('Are you sure you want to delete this schedule?')) {
+        let schedules = getSchedules();
+        schedules.splice(index, 1);
+        saveSchedules(schedules);
+        renderSchedules();
+        closeModal();
+      }
+    }
+
+    // Event: Add Schedule button click - open modal for adding
+    addScheduleBtn.addEventListener('click', () => openModal(false));
+
+    // Event: Close modal on close button
+    closeModalBtn.addEventListener('click', closeModal);
+
+    // Close modal on clicking outside modal content
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+
+    // Submit modal form for add/update
+    modalScheduleForm.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const subject = modalSubject.value;
+      const teacher = modalTeacher.value;
+      const date = modalDate.value;
+      const time = modalTime.value;
+      const scheduleId = modalScheduleId.value;
+
+      if (!subject || !teacher || !date || !time) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      let schedules = getSchedules();
+
+      if (scheduleId === '') {
+        schedules.push({ subject, teacher, date, time });
+      } else {
+        schedules[scheduleId] = { subject, teacher, date, time };
+      }
+
+      saveSchedules(schedules);
+      renderSchedules();
+      closeModal();
+    });
+
+    // Table click for edit/delete buttons
+    scheduleTableBody.addEventListener('click', e => {
+      if (e.target.classList.contains('edit-btn')) {
+        const index = e.target.dataset.index;
+        fillForm(index);
+      } else if (e.target.classList.contains('delete-btn')) {
+        const index = e.target.dataset.index;
+        deleteSchedule(index);
+      }
+    });
+
+    // Search input filtering schedule table
+    searchInput.addEventListener('input', () => {
+      const searchTerm = searchInput.value.toLowerCase();
+      const schedules = getSchedules();
+      const filtered = schedules.filter(s => {
+        return s.subject.toLowerCase().includes(searchTerm) ||
+          s.teacher.toLowerCase().includes(searchTerm) ||
+          s.date.includes(searchTerm) ||
+          s.time.includes(searchTerm);
+      });
+      renderSchedules(filtered);
+    });
+
+    // Initial render
+    renderSchedules();
+  </script>
+</body>
+
+</html>

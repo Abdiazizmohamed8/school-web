@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Albirri School - User Management</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    nav.sidebar {
+      width: 240px;
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 1.5rem 1rem;
+      position: fixed;
+      top: 0;
+      bottom: 60px;
+      left: 0;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    nav.sidebar h2 {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    nav.sidebar a {
+      display: block;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.4rem;
+      color: #ecf0f1;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    nav.sidebar a:hover,
+    nav.sidebar a.active {
+      background: #34495e;
+    }
+
+    nav.sidebar a#logoutBtn {
+      margin-top: auto;
+      background: #c0392b;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    nav.sidebar a#logoutBtn:hover {
+      background: #e74c3c;
+    }
+
+    main.content {
+      margin-left: 260px;
+      padding: 2rem;
+      padding-bottom: 80px;
+      flex-grow: 1;
+      background: #fff;
+      min-height: 100vh;
+    }
+
+    /* Form styles */
+    .form-label {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.6rem;
+      margin-bottom: 1.2rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #2980b9;
+      box-shadow: 0 0 5px rgba(41, 128, 185, 0.5);
+    }
+
+    .btn-primary {
+      padding: 0.6rem 1.2rem;
+      background: #2980b9;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus {
+      background: #1c5d8b;
+      outline: none;
+    }
+
+    /* Table styles */
+    .styled-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+      font-family: inherit;
+    }
+
+    .styled-table thead {
+      background: #2980b9;
+      color: #fff;
+    }
+
+    .styled-table th,
+    .styled-table td {
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 0.95rem;
+    }
+
+    .styled-table tbody tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+
+    button.edit-btn,
+    button.delete-btn {
+      padding: 0.3rem 0.7rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: white;
+      margin: 0 2px;
+      font-family: inherit;
+    }
+
+    button.edit-btn {
+      background: #27ae60;
+    }
+
+    button.edit-btn:hover,
+    button.edit-btn:focus {
+      background: #1e8449;
+      outline: none;
+    }
+
+    button.delete-btn {
+      background: #c0392b;
+    }
+
+    button.delete-btn:hover,
+    button.delete-btn:focus {
+      background: #922b21;
+      outline: none;
+    }
+
+    img.profile-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    footer.footer {
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 0.5rem 2rem;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      font-size: 0.9rem;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    crossorigin="anonymous" />
+</head>
+
+<body>
+  <div class="container">
+    <nav class="sidebar" aria-label="Main navigation">
+      <h2>Albirri School</h2>
+      <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
+      <a href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
+      <a href="courses.html"><i class="fas fa-book"></i> Courses</a>
+      <a href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
+      <a href="attendance.html"><i class="fas fa-clipboard-list"></i> Attendance</a>
+      <a href="exams.html"><i class="fas fa-file-alt"></i> Exams</a>
+      <a href="results.html"><i class="fas fa-poll"></i> Results</a>
+      <a href="grades.html"><i class="fas fa-graduation-cap"></i> Grades</a>
+      <a href="parents.html"><i class="fas fa-users"></i> Parents</a>
+      <a href="schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
+      <a href="profile.html"><i class="fas fa-user-cog"></i> Profile</a>
+      <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+      <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+      <a href="fees.html"><i class="fas fa-dollar-sign"></i> Fees</a>
+      <a href="user-management.html" class="active"><i class="fas fa-users-cog"></i> User Management</a>
+      <a id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+
+    <main class="content" role="main" aria-label="User Management">
+      <h1>User Management</h1>
+
+      <form id="userForm" aria-label="Add or edit user" autocomplete="off" style="max-width:400px;">
+        <input type="hidden" id="editIndex" />
+
+        <label for="username" class="form-label">Username:</label>
+        <input type="text" id="username" class="form-input" placeholder="Enter username" required aria-required="true"
+          autocomplete="username" />
+
+        <label for="password" class="form-label">Password:</label>
+        <input type="password" id="password" class="form-input" placeholder="Enter password" required
+          aria-required="true" autocomplete="new-password" />
+
+        <label for="profileImageUpload" class="form-label">Image Upload:</label>
+        <input type="file" id="profileImageUpload" class="form-input" accept="image/*" aria-describedby="imageHelp" />
+        <small id="imageHelp" style="display:block; margin-bottom:1rem; color:#555;">
+          Upload profile image or leave blank for default avatar
+        </small>
+
+        <button type="submit" id="submitBtn" class="btn-primary">Add User</button>
+      </form>
+
+      <table aria-label="Users list" id="usersTable" class="styled-table" style="margin-top:2rem;">
+        <thead>
+          <tr>
+            <th>Profile Image</th>
+            <th>Username</th>
+            <th>Password</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Users rows -->
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <span><i class="fab fa-facebook"></i> Facebook</span>
+    <span><i class="fab fa-whatsapp"></i> WhatsApp</span>
+    <span><i class="fas fa-map-marker-alt"></i> Degmada Hilwaa, Xaafadda Al-Kheyraad</span>
+  </footer>
+
+  <script>
+    // Redirect to login if no user logged in
+    const loggedInUserRaw = localStorage.getItem('loggedInUser');
+    if (!loggedInUserRaw) {
+      alert('Fadlan marka hore login soo samee!');
+      window.location.href = 'login.html';
+    }
+    const loggedInUser = JSON.parse(loggedInUserRaw);
+
+    // Logout handler
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('loggedInUser');
+      window.location.href = 'login.html';
+    });
+
+    const userForm = document.getElementById('userForm');
+    const usersTableBody = document.querySelector('#usersTable tbody');
+    const submitBtn = document.getElementById('submitBtn');
+    const editIndexInput = document.getElementById('editIndex');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const profileImageUploadInput = document.getElementById('profileImageUpload');
+
+    const defaultAvatar = 'https://i.pravatar.cc/48?img=65';
+
+    // Helper: read file as base64 string
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = e => reject(e);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function getUsers() {
+      return JSON.parse(localStorage.getItem('users')) || [];
+    }
+
+    function saveUsers(users) {
+      localStorage.setItem('users', JSON.stringify(users));
+    }
+
+    async function renderUsers() {
+      const users = getUsers();
+      usersTableBody.innerHTML = '';
+      for (let index = 0; index < users.length; index++) {
+        const user = users[index];
+        let imgSrc = user.profileImage && user.profileImage.trim() !== '' ? user.profileImage : defaultAvatar;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><img src="${imgSrc}" alt="Profile image of ${user.username}" class="profile-img" loading="lazy" /></td>
+          <td>${user.username}</td>
+          <td>${'*'.repeat(user.password.length)}</td>
+          <td>
+            <button class="edit-btn" aria-label="Edit user ${user.username}" data-index="${index}">Edit</button>
+            <button class="delete-btn" aria-label="Delete user ${user.username}" data-index="${index}">Delete</button>
+          </td>
+        `;
+        usersTableBody.appendChild(tr);
+      }
+    }
+
+    function clearForm() {
+      userForm.reset();
+      editIndexInput.value = '';
+      submitBtn.textContent = 'Add User';
+      usernameInput.focus();
+    }
+
+    userForm.addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+      const files = profileImageUploadInput.files;
+      let profileImage = '';
+
+      if (files.length > 0) {
+        try {
+          profileImage = await readFileAsDataURL(files[0]);
+        } catch (error) {
+          alert('Failed to read image file.');
+          return;
+        }
+      } else if (editIndexInput.value !== '') {
+        // Preserve old image if no new file selected when editing
+        const users = getUsers();
+        profileImage = users[editIndexInput.value].profileImage || '';
+      }
+
+      if (!username || !password) {
+        alert('Username and password are required.');
+        return;
+      }
+
+      let users = getUsers();
+      const editIndex = editIndexInput.value;
+
+      if (editIndex === '') {
+        if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+          alert('Username already exists.');
+          return;
+        }
+      } else {
+        if (users.some((u, i) => u.username.toLowerCase() === username.toLowerCase() && i != editIndex)) {
+          alert('Username already exists.');
+          return;
+        }
+      }
+
+      const userData = { username, password, profileImage };
+
+      if (editIndex === '') {
+        users.push(userData);
+      } else {
+        users[editIndex] = userData;
+      }
+
+      saveUsers(users);
+      await renderUsers();
+      clearForm();
+    });
+
+    usersTableBody.addEventListener('click', e => {
+      if (e.target.classList.contains('edit-btn')) {
+        const index = e.target.getAttribute('data-index');
+        const users = getUsers();
+        const user = users[index];
+        usernameInput.value = user.username;
+        passwordInput.value = user.password;
+        editIndexInput.value = index;
+        submitBtn.textContent = 'Update User';
+        usernameInput.focus();
+        // Clear file input because we can't set value programmatically
+        profileImageUploadInput.value = '';
+      } else if (e.target.classList.contains('delete-btn')) {
+        const index = e.target.getAttribute('data-index');
+        if (confirm('Are you sure you want to delete this user?')) {
+          let users = getUsers();
+          users.splice(index, 1);
+          saveUsers(users);
+          renderUsers();
+          clearForm();
+        }
+      }
+    });
+
+    (function init() {
+      let users = getUsers();
+      if (users.length === 0) {
+        users = [{
+          username: 'admin',
+          password: 'admin123',
+          profileImage: ''
+        }];
+        saveUsers(users);
+      }
+      renderUsers();
+    })();
+  </script>
+</body>
+
+</html>

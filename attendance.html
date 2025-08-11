@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Albirri School - Attendance</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    crossorigin="anonymous" />
+  <style>
+    /* ===== Same styles as Students page ===== */
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg, #f5f7fa);
+      color: var(--text, #333);
+    }
+
+    /* Main layout container */
+    .container {
+      display: flex;
+      min-height: 100vh;
+      padding-bottom: 60px;
+      /* Space for footer */
+    }
+
+    /* Sidebar */
+    nav.sidebar {
+      width: 240px;
+      background: var(--sidebar-bg, #2c3e50);
+      color: var(--sidebar-text, #ecf0f1);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1rem;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #34495e transparent;
+      position: fixed;
+      top: 0;
+      bottom: 60px;
+      /* Above the footer */
+      left: 0;
+      z-index: 1000;
+    }
+
+    nav.sidebar::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    nav.sidebar::-webkit-scrollbar-thumb {
+      background-color: #34495e;
+      border-radius: 4px;
+    }
+
+    nav.sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    nav.sidebar h2 {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    nav.sidebar a {
+      display: block;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.4rem;
+      color: #ecf0f1;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: background 0.3s;
+      white-space: nowrap;
+    }
+
+    nav.sidebar a.active,
+    nav.sidebar a:hover {
+      background: #34495e;
+      color: #fff;
+    }
+
+    nav.sidebar a#logoutBtn {
+      margin-top: auto;
+      background: #c0392b;
+      text-align: center;
+    }
+
+    nav.sidebar a#logoutBtn:hover {
+      background: #e74c3c;
+    }
+
+    /* Content area */
+    main.content {
+      margin-left: 260px;
+      padding: 2rem;
+      flex-grow: 1;
+      background: #fff;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      min-height: calc(100vh - 60px);
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* Search input */
+    #searchInput {
+      padding: 0.5rem;
+      width: 100%;
+      max-width: 400px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    /* Add button */
+    #addAttendanceBtn {
+      padding: 0.75rem 1.5rem;
+      background: #2980b9;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+      max-width: 180px;
+      margin-top: 1rem;
+    }
+
+    #addAttendanceBtn:hover {
+      background: #1c5980;
+      transform: scale(1.05);
+    }
+
+    /* Table wrapper */
+    .table-wrapper {
+      max-width: 100%;
+      overflow-x: auto;
+      margin-top: 1.5rem;
+    }
+
+    /* Table style */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    thead {
+      background: #2980b9;
+      color: #fff;
+    }
+
+    th,
+    td {
+      padding: 0.75rem 1rem;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+
+    /* Buttons inside table */
+    button.edit-btn,
+    button.delete-btn {
+      padding: 0.3rem 0.7rem;
+      margin-right: 0.3rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: white;
+      transition: transform 0.3s ease;
+    }
+
+    button.edit-btn {
+      background-color: #27ae60;
+    }
+
+    button.edit-btn:hover {
+      background-color: #1e8449;
+      transform: scale(1.1);
+    }
+
+    button.delete-btn {
+      background-color: #c0392b;
+    }
+
+    button.delete-btn:hover {
+      background-color: #922b21;
+      transform: scale(1.1);
+    }
+
+    /* Modal */
+    #modalOverlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+    }
+
+    #modalOverlay.active {
+      display: flex;
+    }
+
+    #modalContent {
+      background: #fff;
+      padding: 1.5rem 2rem;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    #modalContent label {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+
+    #modalContent select,
+    #modalContent input[type="date"] {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    #modalContent button {
+      padding: 0.75rem 1.5rem;
+      background: #2980b9;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    #modalContent button:hover {
+      background: #1c5980;
+      transform: scale(1.05);
+    }
+
+    #closeModalBtn {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #888;
+      transition: color 0.3s;
+    }
+
+    #closeModalBtn:hover {
+      color: #000;
+    }
+
+    /* Fixed Footer */
+    footer.footer {
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 0.5rem 2rem;
+      text-align: center;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      line-height: 60px;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    footer.footer i {
+      color: #ecf0f1;
+    }
+
+    /* Responsive sidebar for mobile */
+    @media(max-width: 768px) {
+      .container {
+        flex-direction: column;
+        padding-bottom: 60px;
+      }
+
+      nav.sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 1rem 0.5rem;
+      }
+
+      nav.sidebar h2 {
+        display: none;
+      }
+
+      nav.sidebar a {
+        flex: 1;
+        margin: 0 0.25rem;
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      main.content {
+        margin-left: 0;
+        margin-top: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <nav class="sidebar" aria-label="Main navigation">
+      <h2>Albirri School</h2>
+      <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
+      <a href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
+      <a href="courses.html"><i class="fas fa-book"></i> Courses</a>
+      <a href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
+      <a href="attendance.html" class="active"><i class="fas fa-clipboard-list"></i> Attendance</a>
+      <a href="exams.html"><i class="fas fa-file-alt"></i> Exams</a>
+      <a href="results.html"><i class="fas fa-poll"></i> Results</a>
+      <a href="grades.html"><i class="fas fa-graduation-cap"></i> Grades</a>
+      <a href="parents.html"><i class="fas fa-users"></i> Parents</a>
+      <a href="schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
+      <a href="profile.html"><i class="fas fa-user-cog"></i> Profile</a>
+      <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+      <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+      <a href="fees.html"><i class="fas fa-dollar-sign"></i> Fees</a>
+      <a href="user-management.html"><i class="fas fa-users-cog"></i> User Management</a>
+      <a id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+
+    <main class="content" role="main" aria-label="Attendance Management">
+      <h1>Manage Attendance</h1>
+
+      <input type="text" id="searchInput" placeholder="Search attendance records..." aria-label="Search attendance" />
+      <button id="addAttendanceBtn" aria-haspopup="dialog" aria-controls="modalOverlay">Add Attendance</button>
+
+      <div class="table-wrapper">
+        <table aria-label="Attendance list" id="attendanceTable">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Student ID</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Attendance records rows -->
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <span><i class="fab fa-facebook"></i> Facebook</span>
+    <span><i class="fab fa-whatsapp"></i> WhatsApp</span>
+    <span><i class="fas fa-map-marker-alt"></i> Degmada Hilwaa, Xaafadda Al-Kheyraad</span>
+  </footer>
+
+  <!-- Modal for Add/Edit Attendance -->
+  <div id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">
+    <div id="modalContent">
+      <button id="closeModalBtn" aria-label="Close form">&times;</button>
+      <h2 id="modalTitle">Add Attendance</h2>
+      <form id="attendanceForm" aria-label="Add or edit attendance">
+        <input type="hidden" id="editIndex" />
+
+        <label for="studentSelect">Student:</label>
+        <select id="studentSelect" required aria-required="true" aria-describedby="studentSelectHelp">
+          <option value="">-- Select Student --</option>
+        </select>
+        <small id="studentSelectHelp" style="display:block; margin-bottom:1rem; color:#555;">
+          Select student from list
+        </small>
+
+        <label for="attendanceDate">Date:</label>
+        <input type="date" id="attendanceDate" required aria-required="true" />
+
+        <label for="attendanceStatus">Status:</label>
+        <select id="attendanceStatus" required aria-required="true">
+          <option value="">-- Select Status --</option>
+          <option value="Present">Present</option>
+          <option value="Absent">Absent</option>
+    ]
+        </select>
+
+        <button type="submit" id="submitBtn">Add Attendance</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Redirect if not logged in
+    if (!localStorage.getItem('loggedInUser')) {
+      alert('Fadlan marka hore login soo samee!');
+      window.location.href = 'login.html';
+    }
+
+    // Logout handler
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('loggedInUser');
+      window.location.href = 'login.html';
+    });
+
+    const addAttendanceBtn = document.getElementById('addAttendanceBtn');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const attendanceForm = document.getElementById('attendanceForm');
+    const attendanceTableBody = document.querySelector('#attendanceTable tbody');
+    const submitBtn = document.getElementById('submitBtn');
+    const editIndexInput = document.getElementById('editIndex');
+    const studentSelect = document.getElementById('studentSelect');
+    const attendanceDateInput = document.getElementById('attendanceDate');
+    const attendanceStatusSelect = document.getElementById('attendanceStatus');
+    const searchInput = document.getElementById('searchInput');
+
+    // Populate student dropdown from localStorage students
+    function populateStudentDropdown() {
+      const students = JSON.parse(localStorage.getItem("students")) || [];
+      studentSelect.innerHTML = '<option value="">-- Select Student --</option>';
+      students.forEach(student => {
+        const option = document.createElement("option");
+        option.value = student.id;
+        option.textContent = `${student.name} (${student.id})`;
+        studentSelect.appendChild(option);
+      });
+    }
+
+    // Open modal to add attendance
+    addAttendanceBtn.addEventListener('click', () => {
+      openModalForAdd();
+    });
+
+    // Close modal function
+    function closeModal() {
+      modalOverlay.classList.remove('active');
+      attendanceForm.reset();
+      editIndexInput.value = '';
+      submitBtn.textContent = 'Add Attendance';
+      document.getElementById('modalTitle').textContent = 'Add Attendance';
+    }
+
+    closeModalBtn.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', e => {
+      if (e.target === modalOverlay) {
+        closeModal();
+      }
+    });
+
+    // Get attendance records from localStorage
+    function getAttendanceRecords() {
+      return JSON.parse(localStorage.getItem('attendanceRecords')) || [];
+    }
+
+    function saveAttendanceRecords(records) {
+      localStorage.setItem('attendanceRecords', JSON.stringify(records));
+    }
+
+    // Render attendance table
+    function renderAttendance(filteredRecords) {
+      const records = filteredRecords || getAttendanceRecords();
+      attendanceTableBody.innerHTML = '';
+
+      // We also need student names for display (lookup by ID)
+      const students = JSON.parse(localStorage.getItem("students")) || [];
+      const studentMap = {};
+      students.forEach(s => {
+        studentMap[s.id] = s.name;
+      });
+
+      records.forEach((record, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${studentMap[record.studentId] || 'Unknown'}</td>
+          <td>${record.studentId}</td>
+          <td>${record.date}</td>
+          <td>${record.status}</td>
+          <td>
+            <button class="edit-btn" aria-label="Edit attendance" data-index="${index}">Edit</button>
+            <button class="delete-btn" aria-label="Delete attendance" data-index="${index}">Delete</button>
+          </td>
+        `;
+        attendanceTableBody.appendChild(tr);
+      });
+    }
+
+    // Open modal for add
+    function openModalForAdd() {
+      attendanceForm.reset();
+      editIndexInput.value = '';
+      submitBtn.textContent = 'Add Attendance';
+      document.getElementById('modalTitle').textContent = 'Add Attendance';
+      modalOverlay.classList.add('active');
+      populateStudentDropdown();
+      studentSelect.focus();
+    }
+
+    // Open modal for edit with attendance data
+    function openModalForEdit(index) {
+      const records = getAttendanceRecords();
+      const record = records[index];
+      editIndexInput.value = index;
+      attendanceDateInput.value = record.date;
+      attendanceStatusSelect.value = record.status;
+      populateStudentDropdown();
+      studentSelect.value = record.studentId;
+
+      submitBtn.textContent = 'Update Attendance';
+      document.getElementById('modalTitle').textContent = 'Edit Attendance';
+      modalOverlay.classList.add('active');
+      studentSelect.focus();
+    }
+
+    // Handle form submit
+    attendanceForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const studentId = studentSelect.value.trim();
+      const date = attendanceDateInput.value;
+      const status = attendanceStatusSelect.value;
+
+      if (!studentId || !date || !status) {
+        alert('Fadlan buuxi dhammaan xogaha.');
+        return;
+      }
+
+      const records = getAttendanceRecords();
+      const index = editIndexInput.value;
+
+      if (index === '') {
+        // Add new
+        records.push({ studentId, date, status });
+      } else {
+        // Update existing
+        records[index] = { studentId, date, status };
+      }
+
+      saveAttendanceRecords(records);
+      renderAttendance();
+      closeModal();
+    });
+
+    // Handle Edit and Delete buttons
+    attendanceTableBody.addEventListener('click', e => {
+      if (e.target.classList.contains('edit-btn')) {
+        const index = e.target.getAttribute('data-index');
+        openModalForEdit(index);
+      }
+      if (e.target.classList.contains('delete-btn')) {
+        const index = e.target.getAttribute('data-index');
+        if (confirm('Ma hubtaa inaad tirtirto xogtaan attendance?')) {
+          const records = getAttendanceRecords();
+          records.splice(index, 1);
+          saveAttendanceRecords(records);
+          renderAttendance();
+        }
+      }
+    });
+
+    // Search filter
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.toLowerCase();
+      const records = getAttendanceRecords();
+
+      const students = JSON.parse(localStorage.getItem("students")) || [];
+      const studentMap = {};
+      students.forEach(s => {
+        studentMap[s.id] = s.name;
+      });
+
+      const filtered = records.filter(record => {
+        const name = studentMap[record.studentId] || '';
+        return (
+          name.toLowerCase().includes(query) ||
+          record.studentId.toLowerCase().includes(query) ||
+          record.date.includes(query) ||
+          record.status.toLowerCase().includes(query)
+        );
+      });
+
+      renderAttendance(filtered);
+    });
+
+    // Initial render on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderAttendance();
+    });
+  </script>
+</body>
+
+</html>

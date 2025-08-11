@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Albirri School - Admin Login</title>
+  <style>
+    body,
+    html {
+      height: 100%;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #4B6CB7 0%, #182848 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+
+    .login-container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2.5rem 3rem;
+      border-radius: 15px;
+      width: 350px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+
+    input,
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+    }
+
+    input {
+      background-color: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    button {
+      background: #3a7bd5;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2a5ca9;
+    }
+
+    .error-message {
+      color: #ff6b6b;
+      font-weight: 600;
+      min-height: 20px;
+      margin-top: -0.5rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-container" role="main" aria-label="Admin login form">
+    <h1>Albirri School Admin</h1>
+    <form id="loginForm" autocomplete="off" novalidate>
+      <input type="text" id="username" placeholder="Username" required autofocus />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+      <div id="errorMessage" class="error-message"></div>
+    </form>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('users')) {
+      localStorage.setItem('users', JSON.stringify([
+        { username: 'admin', password: 'Admin@123', role: 'admin' },
+        { username: 'manager', password: 'Manager@123', role: 'manager' }
+      ]));
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const errorMessage = document.getElementById('errorMessage');
+
+      if (!username || !password) {
+        errorMessage.textContent = 'Please fill in both fields.';
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem('users'));
+      const user = users.find(u => u.username === username && u.password === password);
+
+      if (user) {
+        localStorage.setItem('loggedInUser', JSON.stringify(user));
+        window.location.href = 'dashboard.html';
+      } else {
+        errorMessage.textContent = 'Invalid username or password.';
+      }
+    });
+  </script>
+</body>
+
+</html>

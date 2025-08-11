@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Albirri School - Settings</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg, #f5f7fa);
+      color: var(--text, #333);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* Dark mode variables */
+    body.dark {
+      --bg: #121212;
+      --text: #eee;
+      --sidebar-bg: #1e2a38;
+      --sidebar-text: #ccc;
+    }
+
+    /* Main layout container */
+    .container {
+      display: flex;
+      min-height: 100vh;
+      padding-bottom: 60px;
+      /* Space for footer */
+    }
+
+    /* Sidebar */
+    nav.sidebar {
+      width: 240px;
+      background: var(--sidebar-bg, #2c3e50);
+      color: var(--sidebar-text, #ecf0f1);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1rem;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #34495e transparent;
+      position: fixed;
+      top: 0;
+      bottom: 60px;
+      /* Above the footer */
+      left: 0;
+      z-index: 1000;
+    }
+
+    nav.sidebar::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    nav.sidebar::-webkit-scrollbar-thumb {
+      background-color: #34495e;
+      border-radius: 4px;
+    }
+
+    nav.sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    nav.sidebar h2 {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    nav.sidebar a {
+      display: block;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.4rem;
+      color: var(--sidebar-text, #ecf0f1);
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: background 0.3s;
+      white-space: nowrap;
+    }
+
+    nav.sidebar a.active,
+    nav.sidebar a:hover {
+      background: #34495e;
+      color: #fff;
+    }
+
+    nav.sidebar a#logoutBtn {
+      margin-top: auto;
+      background: #c0392b;
+      text-align: center;
+    }
+
+    nav.sidebar a#logoutBtn:hover {
+      background: #e74c3c;
+    }
+
+    /* Content area */
+    main.content {
+      margin-left: 260px;
+      padding: 2rem;
+      flex-grow: 1;
+      background: #fff;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      min-height: calc(100vh - 60px);
+      overflow-y: auto;
+      position: relative;
+      border-radius: 8px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.dark main.content {
+      background: #1c1c1c;
+      color: var(--text);
+    }
+
+    /* Settings section */
+    .settings-group {
+      max-width: 400px;
+      margin-top: 1rem;
+    }
+
+    .settings-group h2 {
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .settings-group label {
+      display: block;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .settings-group input[type="radio"] {
+      margin-right: 0.5rem;
+      cursor: pointer;
+    }
+
+    /* Save button */
+    #saveSettings {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      background: #2980b9;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    #saveSettings:hover {
+      background: #1c5980;
+      transform: scale(1.05);
+    }
+
+    /* Fixed Footer */
+    footer.footer {
+      background: var(--sidebar-bg, #2c3e50);
+      color: var(--sidebar-text, #ecf0f1);
+      padding: 0.5rem 2rem;
+      text-align: center;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      line-height: 60px;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    footer.footer i {
+      color: var(--sidebar-text, #ecf0f1);
+    }
+
+    /* Responsive sidebar for mobile */
+    @media(max-width: 768px) {
+      .container {
+        flex-direction: column;
+        padding-bottom: 60px;
+      }
+
+      nav.sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 1rem 0.5rem;
+      }
+
+      nav.sidebar h2 {
+        display: none;
+      }
+
+      nav.sidebar a {
+        flex: 1;
+        margin: 0 0.25rem;
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      main.content {
+        margin-left: 0;
+        margin-top: 1rem;
+        border-radius: 0;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    crossorigin="anonymous" />
+</head>
+
+<body>
+  <div class="container">
+    <nav class="sidebar" aria-label="Main navigation">
+      <h2>Albirri School</h2>
+      <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
+      <a href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
+      <a href="courses.html"><i class="fas fa-book"></i> Courses</a>
+      <a href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
+      <a href="attendance.html"><i class="fas fa-clipboard-list"></i> Attendance</a>
+      <a href="exams.html"><i class="fas fa-file-alt"></i> Exams</a>
+      <a href="results.html"><i class="fas fa-poll"></i> Results</a>
+      <a href="grades.html"><i class="fas fa-graduation-cap"></i> Grades</a>
+      <a href="parents.html"><i class="fas fa-users"></i> Parents</a>
+      <a href="schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
+      <a href="profile.html"><i class="fas fa-user-cog"></i> Profile</a>
+      <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+      <a href="settings.html" class="active"><i class="fas fa-cog"></i> Settings</a>
+      <a href="fees.html"><i class="fas fa-dollar-sign"></i> Fees</a>
+      <a href="user-management.html"><i class="fas fa-users-cog"></i> User Management</a>
+      <a id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+
+    <main class="content" role="main" aria-label="Settings">
+      <h1>Settings</h1>
+      <section class="settings-group" aria-labelledby="themeLabel">
+        <h2 id="themeLabel">Theme Selection</h2>
+        <label>
+          <input type="radio" name="theme" value="light" />
+          Light Mode
+        </label>
+        <label>
+          <input type="radio" name="theme" value="dark" />
+          Dark Mode
+        </label>
+      </section>
+      <button id="saveSettings" aria-label="Save Settings">Save Settings</button>
+    </main>
+  </div>
+
+  <footer class="footer" role="contentinfo">
+    <span><i class="fab fa-facebook"></i> Facebook</span>
+    <span><i class="fab fa-whatsapp"></i> WhatsApp</span>
+    <span><i class="fas fa-map-marker-alt"></i> Degmada Hilwaa, Xaafadda Al-Kheyraad</span>
+  </footer>
+
+  <script>
+    // Redirect if not logged in
+    if (!localStorage.getItem('loggedInUser')) {
+      window.location.href = 'login.html';
+    }
+    if (!localStorage.getItem('loggedInUser')) {
+      alert('Fadlan marka hore login soo samee!');
+      window.location.href = 'login.html';
+    }
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('loggedInUser');
+      window.location.href = 'login.html';
+    });
+
+    // Initialize theme based on localStorage
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.classList.toggle('dark', savedTheme === 'dark');
+
+    // Set radio buttons according to saved theme
+    const radios = document.querySelectorAll('input[name="theme"]');
+    radios.forEach(radio => {
+      radio.checked = radio.value === savedTheme;
+    });
+
+    // Save button handler
+    document.getElementById('saveSettings').addEventListener('click', () => {
+      const selectedTheme = document.querySelector('input[name="theme"]:checked').value;
+      localStorage.setItem('theme', selectedTheme);
+      document.body.classList.toggle('dark', selectedTheme === 'dark');
+      alert('Theme saved! It will apply on all pages.');
+    });
+  </script>
+</body>
+
+</html>

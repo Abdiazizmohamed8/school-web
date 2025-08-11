@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Albirri School - Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    crossorigin="anonymous" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+      color: #333;
+      height: 100vh;
+      display: flex;
+      flex-direction: row;
+    }
+
+    nav.sidebar {
+      width: 240px;
+      background: #2c3e50;
+      color: #ecf0f1;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1rem;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+
+    nav.sidebar h2 {
+      text-align: center;
+      font-size: 1.6rem;
+      margin-bottom: 2rem;
+      font-weight: bold;
+    }
+
+    nav.sidebar a {
+      color: #bdc3c7;
+      text-decoration: none;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+
+    nav.sidebar a.active,
+    nav.sidebar a:hover {
+      background: #34495e;
+      color: #fff;
+    }
+
+    nav.sidebar a#logoutBtn {
+      margin-top: auto;
+      background: #c0392b;
+      text-align: center;
+    }
+
+    main.content {
+      margin-left: 240px;
+      padding: 2rem;
+      flex-grow: 1;
+      min-height: 100vh;
+      overflow-y: auto;
+      background: transparent;
+      padding-bottom: 80px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      color: #1e2a38;
+    }
+
+    .cards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    .card {
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s, box-shadow 0.3s;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeUp 0.6s ease forwards;
+      cursor: pointer;
+    }
+
+    #studentsCard {
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      box-shadow: 0 10px 20px rgba(101, 71, 206, 0.6);
+    }
+
+    #studentsCard:hover {
+      box-shadow: 0 16px 40px rgba(101, 71, 206, 0.8);
+    }
+
+    #teachersCard {
+      background: linear-gradient(135deg, #ff6a00 0%, #ee0979 100%);
+      box-shadow: 0 10px 20px rgba(238, 9, 121, 0.6);
+    }
+
+    #teachersCard:hover {
+      box-shadow: 0 16px 40px rgba(238, 9, 121, 0.8);
+    }
+
+    #coursesCard {
+      background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+      box-shadow: 0 10px 20px rgba(75, 151, 61, 0.6);
+      color: #fff;
+    }
+
+    #coursesCard:hover {
+      box-shadow: 0 16px 40px rgba(75, 151, 61, 0.8);
+    }
+
+    #classesCard {
+      background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+      box-shadow: 0 10px 20px rgba(255, 210, 0, 0.6);
+      color: #333;
+    }
+
+    #classesCard:hover {
+      box-shadow: 0 16px 40px rgba(255, 210, 0, 0.8);
+    }
+
+    .card .icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3));
+    }
+
+    .card .count {
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+
+    .card .label {
+      font-size: 1.2rem;
+      margin-top: 0.25rem;
+      color: inherit;
+      font-weight: 600;
+      text-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    footer.footer {
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 1rem 2rem;
+      text-align: center;
+      font-size: 0.95rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      position: fixed;
+      bottom: 0;
+      left: 240px;
+      right: 0;
+      height: auto;
+      min-height: 60px;
+      box-sizing: border-box;
+    }
+
+    .footer .social-icons a {
+      color: #ecf0f1;
+      margin: 0 0.5rem;
+      font-size: 1.5rem;
+      text-decoration: none;
+    }
+
+    .footer .social-icons a:hover {
+      color: #3498db;
+    }
+
+    .footer .location {
+      flex-basis: 100%;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #bdc3c7;
+      padding: 6px 10px;
+      margin-top: 0.6rem;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+
+      nav.sidebar {
+        width: 100%;
+        height: 60px;
+        flex-direction: row;
+        align-items: center;
+        overflow-x: auto;
+      }
+
+      nav.sidebar h2 {
+        display: none;
+      }
+
+      nav.sidebar a {
+        flex: none;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      main.content {
+        margin-left: 0;
+        padding: 1rem;
+        padding-bottom: 100px;
+      }
+
+      footer.footer {
+        left: 0;
+        flex-direction: column;
+        padding: 0.75rem 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="sidebar">
+    <h2>Albirri School</h2>
+    <a href="dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="students.html"><i class="fas fa-user-graduate"></i> Students</a>
+    <a href="teachers.html"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
+    <a href="courses.html"><i class="fas fa-book"></i> Courses</a>
+    <a href="classes.html"><i class="fas fa-door-open"></i> Classes</a>
+    <a href="attendance.html"><i class="fas fa-clipboard-list"></i> Attendance</a>
+    <a href="exams.html"><i class="fas fa-file-alt"></i> Exams</a>
+    <a href="results.html"><i class="fas fa-poll"></i> Results</a>
+    <a href="grades.html"><i class="fas fa-graduation-cap"></i> Grades</a>
+    <a href="parents.html"><i class="fas fa-users"></i> Parents</a>
+    <a href="schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
+    <a href="profile.html"><i class="fas fa-user-cog"></i> Profile</a>
+    <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+    <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+    <a href="fees.html"><i class="fas fa-dollar-sign"></i> Fees</a>
+    <a href="user-management.html"><i class="fas fa-users-cog"></i> User Management</a>
+    <a id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </nav>
+
+  <main class="content">
+    <h1>Dashboard</h1>
+    <div class="cards-container">
+      <div class="card" id="studentsCard">
+        <div class="icon"><i class="fas fa-user-graduate"></i></div>
+        <div class="count" id="studentsCount">0</div>
+        <div class="label">Students</div>
+      </div>
+      <div class="card" id="teachersCard">
+        <div class="icon"><i class="fas fa-chalkboard-teacher"></i></div>
+        <div class="count" id="teachersCount">0</div>
+        <div class="label">Teachers</div>
+      </div>
+      <div class="card" id="coursesCard">
+        <div class="icon"><i class="fas fa-book"></i></div>
+        <div class="count" id="coursesCount">0</div>
+        <div class="label">Courses</div>
+      </div>
+      <div class="card" id="classesCard">
+        <div class="icon"><i class="fas fa-door-open"></i></div>
+        <div class="count" id="classesCount">0</div>
+        <div class="label">Classes</div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="social-icons">
+      <a href="https://wa.me/252612345678" target="_blank"><i class="fab fa-whatsapp"></i></a>
+      <a href="https://www.facebook.com/albirri.school" target="_blank"><i class="fab fa-facebook-f"></i></a>
+    </div>
+    <div class="location">
+      Hilwaa, Xaafada Alkheyraad, Muqdisho, Somalia
+    </div>
+  </footer>
+
+  <script>
+    // Haddii aan la login-gareyn, u dir login page
+    if (!localStorage.getItem('loggedInUser')) {
+      alert('Fadlan marka hore login soo samee!');
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('loggedInUser');
+      window.location.href = 'login.html';
+    });
+
+    function animateValue(id, start, end, duration = 1000) {
+      const obj = document.getElementById(id);
+      let startTimestamp = null;
+      const step = timestamp => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        obj.textContent = Math.floor(progress * (end - start) + start);
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        } else {
+          obj.textContent = end;
+        }
+      };
+      window.requestAnimationFrame(step);
+    }
+
+    function getCount(key) {
+      const arr = JSON.parse(localStorage.getItem(key)) || [];
+      return arr.length;
+    }
+
+    function initDashboard() {
+      animateValue('studentsCount', 0, getCount('students'));
+      animateValue('teachersCount', 0, getCount('teachers'));
+      animateValue('coursesCount', 0, getCount('courses'));
+      animateValue('classesCount', 0, getCount('classes'));
+    }
+
+    window.addEventListener('DOMContentLoaded', initDashboard);
+  </script>
+</body>
+
+</html>
